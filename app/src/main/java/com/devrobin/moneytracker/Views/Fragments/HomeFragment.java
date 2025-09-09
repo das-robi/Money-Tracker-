@@ -29,8 +29,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.devrobin.moneytracker.MVVM.MainViewModel.TransViewModel;
+import com.devrobin.moneytracker.MVVM.Model.AccountModel;
 import com.devrobin.moneytracker.MVVM.Model.TransactionModel;
 import com.devrobin.moneytracker.R;
+import com.devrobin.moneytracker.adapter.AccountAdapter;
 import com.devrobin.moneytracker.adapter.TransactionAdapter;
 import com.devrobin.moneytracker.databinding.ActivityMainBinding;
 import com.devrobin.moneytracker.databinding.FragmentHomeBinding;
@@ -61,11 +63,12 @@ public class HomeFragment extends Fragment {
 
     public TransViewModel transViewModel;
     private TransactionAdapter transAdapter;
+    private AccountAdapter accountAdapter;
 
     private TransactionAdapter.onTransItemClickListener transItemClickListener;
 
     private ArrayList<TransactionModel> transModelList;
-
+    private ArrayList<AccountModel> accountList;
 
 
 
@@ -107,14 +110,36 @@ public class HomeFragment extends Fragment {
 
         Constant.setCategories();
 
+        // Initialize account list and adapter
+        accountList = new ArrayList<>();
+        accountAdapter = new AccountAdapter(getContext(), accountList, new AccountAdapter.onAccountItemClickListener() {
+            @Override
+            public void accountItemClick(AccountModel accountModel) {
+                // Handle account click if needed
+            }
+        });
+
+        transViewModel.getAccountViewModel().getAllAccounts().observe(getViewLifecycleOwner(), new Observer<List<AccountModel>>() {
+            @Override
+            public void onChanged(List<AccountModel> accountModels) {
+                accountList.clear();
+                if (accountModels != null){
+                    accountList.addAll(accountModels);
+                }
+
+                accountAdapter.notifyDataSetChanged();
+            }
+        });
+
 
 
 //
 //        srchClndrList = findViewById(R.id.search_calendar);
         searchAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
-        homeBinding.searchCalendar.setAdapter(searchAdapter);
+
 
         //ViewModel & and RecycleView
+        setupTransactionClick();
         loadTransViewModel();
 
         //ViewModel for DateBase Transaction
@@ -155,16 +180,14 @@ public class HomeFragment extends Fragment {
     // ViewModel for RecycleView
     private void loadTransViewModel() {
 
-        transViewModel.getTransactionList().observe(getViewLifecycleOwner(), new Observer<List<TransactionModel>>() {
-            @Override
-            public void onChanged(List<TransactionModel> transactionModels) {
-
-                transModelList = (ArrayList<TransactionModel>) transactionModels;
-                loadRecycleView();
-
+        transViewModel.getTransactionList().observe(getViewLifecycleOwner(), transactionModels -> {
+            if (transactionModels != null) {
+                transModelList = new ArrayList<>(transactionModels);
+            } else {
+                transModelList = new ArrayList<>();
             }
+            loadRecycleView();
         });
-
     }
 
     //Load Transaction in RecycleView
@@ -194,6 +217,15 @@ public class HomeFragment extends Fragment {
             }
         }).attachToRecyclerView(homeBinding.recycleViewList);
 
+    }
+
+    private void setupTransactionClick() {
+        transItemClickListener = transactionModel -> {
+            if (getContext() == null) return;
+            android.content.Intent intent = new android.content.Intent(getContext(), com.devrobin.moneytracker.Views.activity.EditTransactionActivity.class);
+            intent.putExtra("transId", transactionModel.getTransId());
+            startActivity(intent);
+        };
     }
 
     //ViewModel For DateBase Transactions setUp
@@ -239,15 +271,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        //Observe Daily Summery
-        // transViewModel.getDailySummery().observe(getViewLifecycleOwner(), new Observer<DailySummer>() {
-        //      @Override
-        //     public void onChanged(DailySummer dailySummer) {
-        //       if (dailySummer != null){
-                    //           updateDailySummery(dailySummer);
-        //       }
-        //      }
-    //  });
 
         transViewModel.getMonthlySummaryWithConversion(currentDefaultCurrency).observe(getViewLifecycleOwner(), new Observer<MonthlySummary>() {
             @Override
@@ -270,10 +293,6 @@ public class HomeFragment extends Fragment {
 
     @SuppressLint("DefaultLocale")
     private void updateMonthlySummary(MonthlySummary monthlySummary) {
-
-        //homeBinding.monthlyIncomeAmount.setText(String.format("%.0f", monthlySummary.getMonthlyIncome()));
-        // homeBinding.monthlyExpenseAmount.setText(String.format("%.0f", monthlySummary.getMonthlyExpense()));
-        //  homeBinding.monthlyBalanceAmount.setText(String.format("%.0f", monthlySummary.getMonthlyBalance()));
 
         // Get current default currency
         String currentDefaultCurrency = prefsManager.getDefaultCurrency();
@@ -303,44 +322,12 @@ public class HomeFragment extends Fragment {
         String incomeText = formatAmountWithCurrency(dailyIncome, currentDefaultCurrency);
         String expenseText = formatAmountWithCurrency(dailyExpense, currentDefaultCurrency);
 
-
-
-        homeBinding.dailyIncomeAmount.setText(String.format(incomeText));
-        homeBinding.dailyExpenseAmount.setText(String.format(expenseText));
-
+        homeBinding.dailyIncomeAmount.setText(incomeText);
+        homeBinding.dailyExpenseAmount.setText(expenseText);
         homeBinding.totalTransaction.setText(String.format("%d", dailySummer.getTransactionCount()));
-
-        //  homeBinding.dailyIncomeAmount.setText(String.format("%.0f", dailySummer.getTotalIncome()));
-        //    homeBinding.dailyExpenseAmount.setText(String.format("%.0f", dailySummer.getTotalExpense()));
-
-        // homeBinding.totalTransaction.setText(String.format("%d", dailySummer.getTransactionCount()));
-
-        // Update monthly balance display
-        // updateMonthlyBalanceDisplay();
     }
 
 
-    private void updateMonthlyBalanceDisplay() {
-        // Get current default currency
-        String currentDefaultCurrency = prefsManager.getDefaultCurrency();
-
-        // Get total balance from all accounts
-        transViewModel.getAccountViewModel().getTotalBalance().observe(getViewLifecycleOwner(), totalBalance -> {
-            if (totalBalance != null) {
-                // Convert total balance to default currency if needed
-                double convertedBalance = totalBalance; // This will be in the default currency
-
-                // Format and display
-                String balanceText = formatAmountWithCurrency(convertedBalance, currentDefaultCurrency);
-                homeBinding.monthlyBalanceAmount.setText(balanceText);
-            }
-        });
-
-        // For now, we'll use placeholder values for monthly income/expense
-        // You can implement proper monthly calculation methods in your ViewModel later
-        homeBinding.monthlyIncomeAmount.setText(formatAmountWithCurrency(0.0, currentDefaultCurrency));
-        homeBinding.monthlyExpenseAmount.setText(formatAmountWithCurrency(0.0, currentDefaultCurrency));
-    }
 
     private void updateDateDisplay(Date date) {
         homeBinding.currentDate.setText(dateFormat.format(date));
@@ -360,9 +347,11 @@ public class HomeFragment extends Fragment {
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
             @Override
-            public void onDateSet(DatePicker datePicker, int day, int month, int year) {
+            public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
 
-                calendar.set(day, month, year);
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 transViewModel.setSelectedDate(calendar.getTime());
 
             }

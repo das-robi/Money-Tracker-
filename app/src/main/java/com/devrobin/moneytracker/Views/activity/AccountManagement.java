@@ -23,6 +23,9 @@ import com.devrobin.moneytracker.databinding.FragmentAccountManagementBinding;
 import java.util.ArrayList;
 import java.util.List;
 
+import utils.CurrencyConverter;
+import utils.SharedPrefsManager;
+
 public class AccountManagement extends AppCompatActivity {
 
     private ActivityAccountManagmentBinding accountBinding;
@@ -55,8 +58,8 @@ public class AccountManagement extends AppCompatActivity {
             }
         });
 
-        accountBinding.accountRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        accountBinding.accountRecyclerView.setAdapter(accountAdapter);
+        accountBinding.accountsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        accountBinding.accountsRecyclerView.setAdapter(accountAdapter);
 
         // Set edit and delete click listeners
         accountAdapter.setEditClickListener(new AccountAdapter.onEditClickListener() {
@@ -106,14 +109,22 @@ public class AccountManagement extends AppCompatActivity {
 
     private void updateTotalBalance(List<AccountModel> accounts) {
 
-        double totalBalance = 0;
+        // Initialize converter and read default currency
+        CurrencyConverter.init(this);
+        String defaultCurrency = SharedPrefsManager.getInstance(this).getDefaultCurrency();
+
+        double totalBalanceDefault = 0.0;
         for (AccountModel account : accounts) {
-            totalBalance += account.getBalance();
+            double amount = account.getBalance();
+            String fromCurrency = account.getCurrency();
+            double converted = CurrencyConverter.convert(amount, fromCurrency, defaultCurrency);
+            totalBalanceDefault += converted;
         }
 
-        // Update total balance display
-        accountBinding.tvTotalBalance.setText(String.format("৳ %.0f", totalBalance));
-        accountBinding.tvTotalAccount.setText(accounts.size() + " Accounts");
+        // Update total balance display in default currency
+        String symbol = utils.CurrencyConverter.getCurrencySymbol(defaultCurrency);
+        accountBinding.tvTotalBalance.setText(String.format(symbol + " %.0f", totalBalanceDefault));
+        accountBinding.tvTotalAccounts.setText(accounts.size() + " Accounts");
     }
 
     private void openAddAccount() {

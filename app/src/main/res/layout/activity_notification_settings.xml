@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:background="@color/blue"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:padding="26dp"
         android:gravity="center_vertical">
 
         <ImageView
@@ -244,7 +244,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Send a test notification to verify the system is working"
+                        android:text="@string/send_a_test_notification_to_verify_the_system_is_working"
                         android:textSize="12sp"
                         android:textColor="@color/gray"
                         android:layout_marginBottom="12dp" />
@@ -253,10 +253,10 @@
                         android:id="@+id/btnTestNotification"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Send Test Notification"
+                        android:text="@string/send_test_notification"
                         android:textSize="12sp"
                         app:cornerRadius="8dp"
-                        android:backgroundTint="@color/green"
+                        android:backgroundTint="@color/blue"
                         android:textColor="@color/white" />
 
                 </LinearLayout>

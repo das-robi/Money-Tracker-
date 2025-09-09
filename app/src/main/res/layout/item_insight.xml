@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <!-- Icon -->
+        <ImageView
+            android:id="@+id/ivInsightIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/outline_brightness_empty_24"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="Insight Icon" />
+
+        <!-- Insight Text -->
+        <TextView
+            android:id="@+id/tvInsightText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Insight text will appear here"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:lineSpacingExtra="2dp" />
+
+        <!-- Alert Level Indicator -->
+        <View
+            android:id="@+id/viewAlertLevel"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/rounded_check_box_outline_blank_24"
+            android:backgroundTint="@color/green" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

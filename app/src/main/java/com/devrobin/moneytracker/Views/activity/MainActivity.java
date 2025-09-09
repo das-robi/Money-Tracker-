@@ -52,38 +52,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private NotificationHelper notificationHelper;
     private static final String TAG = "MainActivity";
 
-    private ListView srchClndrList;
-    private ArrayAdapter<String> searchAdapter;
     private Toolbar toolbar;
 
     public TransViewModel transViewModel;
-    private TransactionAdapter transAdapter;
-
-    private TransactionAdapter.onTransItemClickListener transItemClickListener;
-
-    private ArrayList<TransactionModel> transModelList;
-
-
-    //Fragments
-    private TransactionChart transactionChart = new TransactionChart();
-    private TransactionReports transactionReports = new TransactionReports();
-    private UserProfile userProfile = new UserProfile();
-    private HomeFragment homeFragment = new HomeFragment();
-    private AddTransaction addTransaction = new AddTransaction();
-
-
-
-    private long transId;
-    private int Edit_Trans_RequestCode = 1;
 
 
     // Calendar & Date
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM, yyyy", Locale.getDefault());
     private SimpleDateFormat dayDateFormate = new SimpleDateFormat("EEE", Locale.getDefault());
     private Calendar calendar = Calendar.getInstance();
-
-    private String selectedDate;
-
 
     // Permission launcher for notification permission
     private final ActivityResultLauncher<String> requestPermissionLauncher =
@@ -106,9 +83,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        //Important Component
-        transViewModel = new ViewModelProvider(this).get(TransViewModel.class);
 
         toolbar = findViewById(R.id.mainToolbar);
         setSupportActionBar(toolbar);
@@ -151,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             setupNotifications();
         }
     }
-
 
     private void setupNotifications() {
         try {

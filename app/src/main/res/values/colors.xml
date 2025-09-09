@@ -12,4 +12,7 @@
     <color name="yellow">#FFD700</color>
     <color name="green">#4CAF50</color>
     <color name="text_secondary">#757575</color>
+
+    <color name="primary">#06A8DD</color>
+    <color name="text_primary">#212121</color>
 </resources>

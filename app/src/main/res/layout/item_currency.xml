@@ -1,33 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:paddingVertical="16dp"
     android:paddingHorizontal="16dp"
-    android:background="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
 
-    <!-- Country and Currency Name -->
-    <TextView
-        android:id="@+id/tvCurrencyName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Bangladeshi (Taka)"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        android:gravity="start" />
 
-    <!-- Radio Button -->
-    <RadioButton
-        android:id="@+id/rbCurrency"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:buttonTint="@color/blue"
-        android:checked="false" />
+    <!-- Bangladeshi (Taka) - Selected -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:gravity="center_vertical"
+        android:background="#FFFFFF">
+
+        <TextView
+            android:id="@+id/tvCurrencyName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/bangladeshi_taka"
+            android:textColor="#333333"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/rbCurrency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:buttonTint="#4285F4" />
+
+    </LinearLayout>
 
 </LinearLayout>
 

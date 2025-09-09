@@ -79,6 +79,7 @@ public class NotificationSettingsActivity extends AppCompatActivity {
             }
         });
 
+
         // Notification toggle
         binding.switchNotification.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -90,6 +91,26 @@ public class NotificationSettingsActivity extends AppCompatActivity {
                     // Request permission if not granted
                     requestNotificationPermission();
                 }
+            }
+        });
+
+        // Sound effects toggle
+        binding.switchSoundEffects.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Save sound effects preference
+            getSharedPreferences("NotificationSettings", MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("sound_effects_enabled", isChecked)
+                    .apply();
+        });
+
+        // Test notification button
+        binding.btnTestNotification.setOnClickListener(v -> {
+            if (notificationHelper.isNotificationPermissionGranted()) {
+                notificationHelper.sendTestNotification();
+                Toast.makeText(this, "Test notification sent!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Please grant notification permission first", Toast.LENGTH_LONG).show();
+                requestNotificationPermission();
             }
         });
 

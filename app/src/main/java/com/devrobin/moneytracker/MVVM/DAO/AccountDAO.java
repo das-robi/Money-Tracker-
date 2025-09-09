@@ -44,4 +44,6 @@ public interface AccountDAO {
     @Query("DELETE FROM account_table")
     void deleteAllAccounts();
 
+    @Query("SELECT COUNT(*) FROM account_table")
+    int getAccountCountSync();
 }

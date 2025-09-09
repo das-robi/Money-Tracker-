@@ -41,7 +41,7 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.AccountV
     @NonNull
     @Override
     public AccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new AccountViewHolder(AccountListItemsBinding.inflate(LayoutInflater.from(parent.getContext())));
+        return new AccountViewHolder(AccountListItemsBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override

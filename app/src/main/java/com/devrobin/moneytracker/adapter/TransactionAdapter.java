@@ -31,9 +31,9 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     private Context context;
     private ArrayList<TransactionModel> transList;
-    private String defaultCurrency;
     private ExecutorService executor;
     private AccountDAO accountDAO;
+    private String defaultCurrency;
 
     public onTransItemClickListener transItemClickListener;
 
@@ -45,13 +45,12 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
         // Initialize database access
         TransactionDatabase database = TransactionDatabase.getInstance(context);
-        this.accountDAO = database.accountDAO();
+        this.accountDAO = database.accountDao();
         this.executor = Executors.newSingleThreadExecutor();
 
         // Initialize CurrencyConverter and get default currency
         CurrencyConverter.init(context);
         this.defaultCurrency = CurrencyConverter.getDefaultCurrency();
-
     }
 
     @NonNull
@@ -92,7 +91,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             holder.itemsBinding.categoryIcons.setBackgroundTintList(context.getColorStateList(R.color.blue));
         }
         else {
-            holder.itemsBinding.categoryIcons.setImageResource(R.drawable.others);
+            holder.itemsBinding.categoryIcons.setImageResource(R.drawable.food);
             holder.itemsBinding.categoryIcons.setBackgroundTintList(context.getColorStateList(R.color.blue));
         }
 
@@ -100,111 +99,84 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         String type = transModel.getType();
         double amount = transModel.getAmount();
 
+        // Show a preliminary formatted amount immediately to avoid placeholder flicker
+        String prelimSymbol = CurrencyConverter.getCurrencySymbol(defaultCurrency);
+        String prelimText;
+        if ("INCOME".equals(type)) {
+            prelimText = "+" + prelimSymbol + String.format("%.2f", amount);
+            holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.blue));
+        } else if ("EXPENSE".equals(type)) {
+            prelimText = "-" + prelimSymbol + String.format("%.2f", amount);
+            holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.red));
+        } else {
+            prelimText = prelimSymbol + String.format("%.2f", amount);
+            holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.black));
+        }
+        holder.itemsBinding.categoryAmount.setText(prelimText);
+
         // Get account currency information
         int accountId = transModel.getAccountId();
         if (accountId > 0) {
+            executor.execute(() -> {
+                AccountModel account = accountDAO.getAccountByIdSync(accountId);
+                if (account != null) {
+                    String accountCurrency = account.getCurrency();
+                    String currencySymbol = CurrencyConverter.getCurrencySymbol(accountCurrency);
 
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
+                    // Format amount with currency symbol
+                    String formattedAmount;
+                    if ("INCOME".equals(type)) {
+                        formattedAmount = "+" + currencySymbol + String.format("%.2f", amount);
+                    } else if ("EXPENSE".equals(type)) {
+                        formattedAmount = "-" + currencySymbol + String.format("%.2f", amount);
+                    } else {
+                        formattedAmount = currencySymbol + String.format("%.2f", amount);
+                    }
 
-                    AccountModel account = accountDAO.getAccountByIdSync(accountId);
-                    if (account != null) {
-                        String accountCurrency = account.getCurrency();
-                        String currencySymbol = CurrencyConverter.getCurrencySymbol(accountCurrency);
+                    // Update UI on main thread
+                    holder.itemView.post(() -> {
+                        holder.itemsBinding.categoryAmount.setText(formattedAmount);
 
-                        // Format amount with currency symbol
-                        String formattedAmount;
                         if ("INCOME".equals(type)) {
-                            formattedAmount = "+" + currencySymbol + String.format("%.2f", amount);
+                            holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.blue));
                         } else if ("EXPENSE".equals(type)) {
-                            formattedAmount = "-" + currencySymbol + String.format("%.2f", amount);
+                            holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.red));
                         } else {
-                            formattedAmount = currencySymbol + String.format("%.2f", amount);
+                            holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.black));
                         }
 
+                        // Show currency info if different from default
+                        if (!accountCurrency.equals(defaultCurrency)) {
+                            // Convert to default currency for balance display
+                            double convertedAmount = CurrencyConverter.convertToDefault(amount, accountCurrency);
+                            String balanceText = String.format("%s %.2f",
+                                    CurrencyConverter.getCurrencySymbol(defaultCurrency),
+                                    convertedAmount);
 
-
-                        holder.itemView.post(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                holder.itemsBinding.categoryAmount.setText(formattedAmount);
-
-                                if ("INCOME".equals(type)) {
-                                    holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.blue));
-                                } else if ("EXPENSE".equals(type)) {
-                                    holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.red));
-                                } else {
-                                    holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.black));
-                                }
-
-
-                                // Show currency info if different from default
-                                if (!accountCurrency.equals(defaultCurrency)) {
-                                    // Convert to default currency for balance display
-                                    double convertedAmount = CurrencyConverter.convertToDefault(amount, accountCurrency);
-                                    String balanceText = String.format("%s %.2f",
-                                            CurrencyConverter.getCurrencySymbol(defaultCurrency),
-                                            convertedAmount);
-
-                                    holder.itemsBinding.currencyInfo.setText(balanceText);
-                                    holder.itemsBinding.currencyInfo.setVisibility(View.VISIBLE);
-                                } else {
-                                    holder.itemsBinding.currencyInfo.setVisibility(View.GONE);
-                                }
-                            }
-                        });
-
-
-                    }
+                            holder.itemsBinding.currencyInfo.setText(balanceText);
+                            holder.itemsBinding.currencyInfo.setVisibility(View.VISIBLE);
+                        } else {
+                            holder.itemsBinding.currencyInfo.setVisibility(View.GONE);
+                        }
+                    });
                 }
             });
-
-
-        }
-        else {
-
+        } else {
             // Fallback for transactions without account
+            String formattedAmount;
             if ("INCOME".equals(type)) {
-                holder.itemsBinding.categoryAmount.setText(String.format("+%.2f", amount));
+                formattedAmount = String.format("+%.2f", amount);
                 holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.blue));
             } else if ("EXPENSE".equals(type)) {
-                holder.itemsBinding.categoryAmount.setText(String.format("-%.2f", amount));
+                formattedAmount = String.format("-%.2f", amount);
                 holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.red));
             } else {
-                holder.itemsBinding.categoryAmount.setText(String.format("%.2f", amount));
+                formattedAmount = String.format("%.2f", amount);
                 holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.black));
             }
+            holder.itemsBinding.categoryAmount.setText(formattedAmount);
             holder.itemsBinding.currencyInfo.setVisibility(View.GONE);
-
         }
-
-        // Use Yoda conditions (literal first) to avoid NullPointerException
-        // if ("INCOME".equals(type)) {
-        //     holder.itemsBinding.categoryAmount.setText(String.format("+%.1f", amount));
-        //     holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.blue));
-        // }
-        // else if ("EXPENSE".equals(type)) {
-        //    holder.itemsBinding.categoryAmount.setText(String.format("-%.1f", amount));
-        //    holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.red));
-        //  }
-        //else {
-            // Handle unknown or null type
-        //    holder.itemsBinding.categoryAmount.setText(String.format("%.1f", amount));
-        //    holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.black));
-        // }
-
-
-//        //Set Income and Expense Type
-//        if (transModel.getType().equals("Income")){
-//            holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.blue));
-//        }
-//        else if (transModel.getType().equals("Expense")){
-//            holder.itemsBinding.categoryAmount.setTextColor(context.getColor(R.color.red));
-//        }
-
-
     }
 
     @Override
@@ -223,18 +195,18 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
             this.itemsBinding = itemsBinding;
 
-//            itemsBinding.getRoot().setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//
-//                    int position = getAdapterPosition();
-//
-//                    if (transItemClickListener != null && position != RecyclerView.NO_POSITION){
-//                        transItemClickListener.onTransItemClick(transList.get(position));
-//                    }
-//
-//                }
-//            });
+           itemsBinding.getRoot().setOnClickListener(new View.OnClickListener() {
+                @Override
+               public void onClick(View view) {
+
+                    int position = getAdapterPosition();
+
+                    if (transItemClickListener != null && position != RecyclerView.NO_POSITION){
+                        transItemClickListener.onTransItemClick(transList.get(position));
+                    }
+
+                }
+            });
 
         }
     }

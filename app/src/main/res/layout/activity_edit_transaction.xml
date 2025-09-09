@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Views.activity.EditTransactionActivity"
+    android:orientation="vertical"
+    android:background="#F5F5F5"
+    android:fitsSystemWindows="true">
+
+    <!-- Header with back button and title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#4285F4"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/outline_chevron_backward_24"
+            android:tint="#FFFFFF"
+            android:contentDescription="Back"
+            android:scaleType="centerInside" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Edit Transaction"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="normal"
+            android:gravity="center"
+            android:layout_marginEnd="24dp"
+            android:fontFamily="sans-serif" />
+
+    </LinearLayout>
+
+    <!-- Form Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Type Field -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Amount"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif" />
+
+            <EditText
+                android:id="@+id/inputMoney"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/edittextbg"
+                android:hint="0.00"
+                android:textColorHint="#999999"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="sans-serif"
+                android:inputType="numberDecimal" />
+
+            <!-- Category Field -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/category"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/edittextbg"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:id="@+id/categoryText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/food"
+                    android:textColor="#333333"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_dropdown"
+                    android:tint="#4285F4"
+                    android:contentDescription="Dropdown"
+                    android:scaleType="centerInside" />
+
+            </LinearLayout>
+
+            <!-- Account Field -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Account"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif" />
+
+            <EditText
+                android:id="@+id/account"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/edittextbg"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="sans-serif"
+                android:inputType="text" />
+
+            <!-- Date Field -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif" />
+
+            <EditText
+                android:id="@+id/dateField"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/edittextbg"
+                android:text="28/07/2025"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="sans-serif"
+                android:inputType="date"
+                android:focusable="false"
+                android:clickable="true" />
+
+            <!-- Note Field -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Note"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif" />
+
+            <EditText
+                android:id="@+id/inputNote"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:background="@drawable/edittextbg"
+                android:text="Don't forget to note your spending today"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:layout_marginBottom="40dp"
+                android:fontFamily="sans-serif"
+                android:inputType="textMultiLine"
+                android:gravity="top|start"
+                android:minLines="4" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Bottom Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center"
+        android:background="#F5F5F5">
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Save"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="normal"
+            android:background="@drawable/btn_bg"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="sans-serif"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="delete"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="normal"
+            android:background="@drawable/btn_bg"
+            android:layout_marginStart="8dp"
+            android:fontFamily="sans-serif"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

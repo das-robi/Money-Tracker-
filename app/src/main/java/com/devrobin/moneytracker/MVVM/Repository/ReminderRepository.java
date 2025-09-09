@@ -21,7 +21,7 @@ public class ReminderRepository {
 
         TransactionDatabase database = TransactionDatabase.getInstance(application);
 
-        reminderDAO = database.reminderDAO();
+        reminderDAO = database.reminderDao();
         allReminders = reminderDAO.getAllReminders();
     }
 

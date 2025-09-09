@@ -11,7 +11,7 @@ public class FeedbackRepository {
     private final FeedbackDAO feedbackDao;
 
     public FeedbackRepository(Context context) {
-        this.feedbackDao = TransactionDatabase.getInstance(context).feedbackDAO();
+        this.feedbackDao = TransactionDatabase.getInstance(context).feedbackDao();
     }
 
     public long insertFeedback(FeedbackModel feedback) {

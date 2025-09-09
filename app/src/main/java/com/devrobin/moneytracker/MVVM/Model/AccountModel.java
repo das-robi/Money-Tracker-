@@ -28,6 +28,9 @@ public class AccountModel {
     @ColumnInfo(name = "iconId")
     private int iconId; // Resource ID for the selected icon
 
+    @ColumnInfo(name = "lastModifiedTime")
+    private long lastModifiedTime; // millis since epoch for conflict resolution
+
     public AccountModel() {
     }
 
@@ -38,6 +41,7 @@ public class AccountModel {
         this.balance = balance;
         this.note = "";
         this.iconId = 0; // Default icon
+        this.lastModifiedTime = System.currentTimeMillis();
     }
 
     public AccountModel(String accountName, String cardType, String currency, double balance, String note, int iconId) {
@@ -47,7 +51,10 @@ public class AccountModel {
         this.balance = balance;
         this.note = note;
         this.iconId = iconId;
+        this.lastModifiedTime = System.currentTimeMillis();
     }
+
+
 
     // Legacy constructor for backward compatibility
     public AccountModel(String accountName, double balance) {
@@ -57,6 +64,7 @@ public class AccountModel {
         this.balance = balance;
         this.note = "";
         this.iconId = 0;
+        this.lastModifiedTime = System.currentTimeMillis();
     }
 
     public int getAccountId() {
@@ -113,6 +121,14 @@ public class AccountModel {
 
     public void setIconId(int iconId) {
         this.iconId = iconId;
+    }
+
+    public long getLastModifiedTime() {
+        return lastModifiedTime;
+    }
+
+    public void setLastModifiedTime(long lastModifiedTime) {
+        this.lastModifiedTime = lastModifiedTime;
     }
 
     public String getFormattedBalance() {

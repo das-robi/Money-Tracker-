@@ -24,6 +24,7 @@ import com.devrobin.moneytracker.Views.activity.FontSizeActivity;
 import com.devrobin.moneytracker.Views.activity.LanguageSettingsActivity;
 import com.devrobin.moneytracker.Views.activity.NotificationSettingsActivity;
 import com.devrobin.moneytracker.Views.activity.PrivacyAndPolicy;
+import com.devrobin.moneytracker.Views.activity.ProfileSettingsActivity;
 import com.devrobin.moneytracker.Views.activity.ReminderActivity;
 import com.devrobin.moneytracker.Views.activity.TermsAndConditions;
 import com.devrobin.moneytracker.Views.activity.UsersFeedBack;

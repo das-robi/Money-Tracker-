@@ -22,7 +22,8 @@ public interface CategoryDAO {
     @Delete
     void deleteCategory(CategoryModel categoryModel);
 
-    @Query("SELECT * FROM category_table ORDER BY categoryName ASC")
+    // Return unique categories by name to avoid duplicates in selection lists
+    @Query("SELECT MIN(categoryId) AS categoryId, categoryName, MIN(iconId) AS iconId, MAX(isDefault) AS isDefault FROM category_table GROUP BY categoryName ORDER BY categoryName ASC")
     LiveData<List<CategoryModel>> getAllCategories();
 
     @Query("SELECT * FROM category_table WHERE categoryId = :categoryId")
@@ -36,5 +37,12 @@ public interface CategoryDAO {
 
     @Query("DELETE FROM category_table")
     void deleteAllCategories();
+
+    @Query("SELECT COUNT(*) FROM category_table")
+    int getCategoryCountSync();
+
+    // Synchronous variant also deduplicated by category name
+    @Query("SELECT MIN(categoryId) AS categoryId, categoryName, MIN(iconId) AS iconId, MAX(isDefault) AS isDefault FROM category_table GROUP BY categoryName ORDER BY categoryName ASC")
+    List<CategoryModel> getAllCategoriesSync();
 }
 

@@ -1,5 +1,6 @@
 package com.devrobin.moneytracker.Views.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -114,7 +115,6 @@ public class BudgetActivity extends AppCompatActivity {
         });
     }
 
-
     private void updateBudgetSummary(List<BudgetModel> budgets) {
         if (budgets == null || budgets.isEmpty()) {
             // No budgets
@@ -181,6 +181,7 @@ public class BudgetActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("GestureBackNavigation")
     @Override
     public void onBackPressed() {
         super.onBackPressed();

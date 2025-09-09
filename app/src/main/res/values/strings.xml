@@ -155,5 +155,31 @@
     <string name="feedback_love_prompt_title">Thank you!</string>
     <string name="feedback_love_prompt_msg">Would you like to rate us on the Play Store?</string>
     <string name="feedback_rate_playstore">Rate on Play Store</string>
+    <string name="account_name">Account name</string>
+    <string name="account_type">Account Type</string>
+    <string name="_0">0</string>
+    <string name="account_management">Account Management</string>
+    <string name="_0_accounts">0 Accounts</string>
+    <string name="currency_settings">Currency Settings</string>
+    <string name="country">Country</string>
+    <string name="check">Check</string>
+    <string name="bangladeshi_taka">Bangladeshi (Taka)</string>
+    <string name="delete">Delete</string>
+    <string name="food_icon">Food icon</string>
+    <string name="send_test_notification">Send Test Notification</string>
+    <string name="send_a_test_notification_to_verify_the_system_is_working">Send a test notification to verify the system is working</string>
+    <string name="transactions_only">Transactions Only</string>
+    <string name="scope">Scope</string>
+    <string name="_09">09</string>
+    <string name="_2025">2025</string>
+    <string name="monthly">Monthly</string>
+    <string name="range">Range</string>
+    <string name="format">Format</string>
+    <string name="csv">CSV</string>
+    <string name="cancel">Cancel</string>
+    <string name="english_flag">English flag</string>
+    <string name="english_default">English (Default)</string>
+    <string name="hindi">हिन्दी</string>
+    <string name="espa_ol">Español</string>
 
 </resources>

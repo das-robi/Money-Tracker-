@@ -22,7 +22,10 @@ import com.devrobin.moneytracker.databinding.ActivityExportSettingsBinding;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import utils.NotificationHelper;
 import utils.export.ExportUtils;
 
 public class ExportSettingsActivity extends AppCompatActivity {
@@ -32,6 +35,9 @@ public class ExportSettingsActivity extends AppCompatActivity {
     private TransactionDao transactionDao;
     private AccountDAO accountDao;
     private BudgetDAO budgetDao;
+
+    private ExecutorService exportExecutor = Executors.newSingleThreadExecutor();
+    private NotificationHelper notificationHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +74,8 @@ public class ExportSettingsActivity extends AppCompatActivity {
 
         TransactionDatabase db = TransactionDatabase.getInstance(this);
         transactionDao = db.transDao();
-        accountDao = db.accountDAO();
-        budgetDao = db.budgetDAO();
+        accountDao = db.accountDao();
+        budgetDao = db.budgetDao();
 
         exportBinding.btnExport.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,16 +103,99 @@ public class ExportSettingsActivity extends AppCompatActivity {
         long start = startEnd[0];
         long end = startEnd[1];
 
-        try {
-            Uri fileUri = ExportUtils.export(this, format, scope, start, end, transactionDao, accountDao, budgetDao);
-            if (fileUri == null) {
-                Toast.makeText(this, R.string.export_failed, Toast.LENGTH_SHORT).show();
-                return;
+        exportBinding.btnExport.setEnabled(false);
+        exportBinding.btnShare.setEnabled(false);
+
+        exportExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final Uri fileUri = ExportUtils.export(ExportSettingsActivity.this, format, scope, start, end, transactionDao, accountDao, budgetDao);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            exportBinding.btnExport.setEnabled(true);
+                            exportBinding.btnShare.setEnabled(true);
+                            if (fileUri == null) {
+                                Toast.makeText(ExportSettingsActivity.this, R.string.export_failed, Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            Toast.makeText(ExportSettingsActivity.this, R.string.export_saved, Toast.LENGTH_SHORT).show();
+                            if (notificationHelper != null) {
+                                String title = getString(R.string.app_name) + " - Export Complete";
+                                String msg = getString(R.string.export_saved);
+                                notificationHelper.sendNotification(title, msg, 7001);
+                            }
+                            if (shareAfter) ExportUtils.share(ExportSettingsActivity.this, fileUri, format);
+                        }
+                    });
+                } catch (final Exception e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            exportBinding.btnExport.setEnabled(true);
+                            exportBinding.btnShare.setEnabled(true);
+                            Toast.makeText(ExportSettingsActivity.this, getString(R.string.export_failed_with_reason, e.getMessage()), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
             }
-            Toast.makeText(this, R.string.export_saved, Toast.LENGTH_SHORT).show();
-            if (shareAfter) ExportUtils.share(this, fileUri, format);
-        } catch (Exception e) {
-            Toast.makeText(this, getString(R.string.export_failed_with_reason, e.getMessage()), Toast.LENGTH_LONG).show();
+        });
+    }
+
+
+    private void performShare() {
+        final String format = exportBinding.spinnerFormat.getSelectedItem().toString();
+        final String range = exportBinding.spinnerRange.getSelectedItem().toString();
+        final String scope = exportBinding.spinnerScope.getSelectedItem().toString();
+        final String year = (String) exportBinding.spinnerYear.getSelectedItem();
+        final String month = (String) exportBinding.spinnerMonth.getSelectedItem();
+
+        long[] startEnd = ExportUtils.resolveRange(range, year, month);
+        final long start = startEnd[0];
+        final long end = startEnd[1];
+
+        exportBinding.btnExport.setEnabled(false);
+        exportBinding.btnShare.setEnabled(false);
+
+        exportExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final android.net.Uri shareUri = ExportUtils.exportForShare(ExportSettingsActivity.this, format, scope, start, end, transactionDao, accountDao, budgetDao);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            exportBinding.btnExport.setEnabled(true);
+                            exportBinding.btnShare.setEnabled(true);
+                            if (shareUri == null) {
+                                Toast.makeText(ExportSettingsActivity.this, R.string.export_failed, Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            // Directly open share sheet without persisting to Downloads
+                            ExportUtils.share(ExportSettingsActivity.this, shareUri, format);
+                        }
+                    });
+                } catch (final Exception e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            exportBinding.btnExport.setEnabled(true);
+                            exportBinding.btnShare.setEnabled(true);
+                            Toast.makeText(ExportSettingsActivity.this, getString(R.string.export_failed_with_reason, e.getMessage()), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (exportExecutor != null) {
+            exportExecutor.shutdown();
         }
     }
+
 }

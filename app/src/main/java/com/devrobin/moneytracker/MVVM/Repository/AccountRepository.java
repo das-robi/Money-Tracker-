@@ -19,7 +19,7 @@ public class AccountRepository {
 
     public AccountRepository(Application application) {
         TransactionDatabase database = TransactionDatabase.getInstance(application);
-        accountDao = database.accountDAO();
+        accountDao = database.accountDao();
         allAccounts = accountDao.getAllAccounts();
         totalBalance = accountDao.getTotalBalance();
     }

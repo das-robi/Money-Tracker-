@@ -26,17 +26,7 @@ public class User extends Application {
 
     }
 
-    public User() {
-
-        //Constructor
-
-    }
-
-    public User(String userName, String userId, String userEmail) {
-        this.userName = userName;
-        this.userId = userId;
-        this.userEmail = userEmail;
-    }
+    public User() { }
 
     @Override
     public void onCreate() {
@@ -44,11 +34,15 @@ public class User extends Application {
         // Apply persisted locale at process start
         LocaleManager.initializeLocale(this);
 
-        // Initialize and apply saved font scale globally
-        FontScaleUtil.initialize(this);
+        // Apply saved theme at process start so first activity uses it
+        int themeResId = SharedPrefsManager.getInstance(this).getAppTheme();
+        setTheme(themeResId);
 
         // Initialize and apply saved font scale globally
         FontScaleUtil.initialize(this);
+
+        // Initialize Firebase / Firestore
+        FirebaseProvider.initialize(this);
 
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -63,7 +57,6 @@ public class User extends Application {
         });
     }
 
-
     private static final List<WeakReference<Activity>> openActivities = new ArrayList<>();
 
     private static void track(Activity activity) {
@@ -77,6 +70,12 @@ public class User extends Application {
                 a.recreate();
             }
         }
+    }
+
+    public User(String userName, String userId, String userEmail) {
+        this.userName = userName;
+        this.userId = userId;
+        this.userEmail = userEmail;
     }
 
     public String getUserName() {

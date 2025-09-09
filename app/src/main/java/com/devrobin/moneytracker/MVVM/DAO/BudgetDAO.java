@@ -35,6 +35,12 @@ public interface BudgetDAO {
     @Query("SELECT * FROM budget_table WHERE budgetType = :budgetType")
     LiveData<List<BudgetModel>> getBudgetsByType(String budgetType);
 
+    @Query("SELECT * FROM budget_table WHERE category = :category")
+    LiveData<List<BudgetModel>> getBudgetsByCategory(String category);
+
+    @Query("SELECT * FROM budget_table WHERE category = :category")
+    List<BudgetModel> getBudgetsByCategorySync(String category);
+
     @Query("UPDATE budget_table SET spentAmount = spentAmount + :amount WHERE budgetId = :budgetId")
     void updateBudgetSpent(int budgetId, double amount);
 

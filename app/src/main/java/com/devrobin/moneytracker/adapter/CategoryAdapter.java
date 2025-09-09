@@ -42,8 +42,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
         CategoryModel cgtoryModel = categoryList.get(position);
 
-        holder.listItemsBinding.categoryName.setText(cgtoryModel.getCategoryName());
-
+        String name = cgtoryModel != null ? cgtoryModel.getCategoryName() : null;
+        holder.listItemsBinding.categoryName.setText(name == null ? "" : name);
 
         // Handle icon ID safely with fallback
         int iconId = cgtoryModel.getIconId();

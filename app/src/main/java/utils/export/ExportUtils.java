@@ -4,8 +4,13 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.provider.MediaStore;
+
+import androidx.core.content.FileProvider;
 
 import com.devrobin.moneytracker.MVVM.DAO.AccountDAO;
 import com.devrobin.moneytracker.MVVM.DAO.BudgetDAO;
@@ -14,6 +19,8 @@ import com.devrobin.moneytracker.MVVM.Model.AccountModel;
 import com.devrobin.moneytracker.MVVM.Model.BudgetModel;
 import com.devrobin.moneytracker.MVVM.Model.TransactionModel;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -38,8 +45,7 @@ public class ExportUtils {
         }
         else if ("All Time".equalsIgnoreCase(range)) {
             return new long[]{0L, Long.MAX_VALUE};
-        }
-        else {
+        } else {
             // Default: current month
             Date d = new Date(now);
             SimpleDateFormat yf = new SimpleDateFormat("yyyy", Locale.getDefault());
@@ -96,134 +102,290 @@ public class ExportUtils {
             budgets = bDao.getAllBudgetsSync();
         }
 
-        // Build accountId -> currency map
+        // Build accountId -> currency/name maps
         java.util.HashMap<Integer, String> accountIdToCurrency = new java.util.HashMap<>();
-        for (AccountModel am : accounts) accountIdToCurrency.put(am.getAccountId(), am.getCurrency());
+        java.util.HashMap<Integer, String> accountIdToName = new java.util.HashMap<>();
+        for (AccountModel am : accounts) {
+            accountIdToCurrency.put(am.getAccountId(), am.getCurrency());
+            accountIdToName.put(am.getAccountId(), safe(am.getAccountName()));
+        }
 
         if ("CSV".equalsIgnoreCase(format)) {
             mime = "text/csv";
             ext = ".csv";
-            data = toCsv(transactions, accounts, budgets, scope, accountIdToCurrency);
-        }
-        else if ("JSON".equalsIgnoreCase(format)) {
+            data = toCsv(transactions, scope, accountIdToName);
+        } else if ("JSON".equalsIgnoreCase(format)) {
             mime = "application/json";
             ext = ".json";
-            data = toJson(transactions, accounts, budgets, scope, accountIdToCurrency);
-        }
-        else {
-            // Minimal PDF as text for now; can be replaced by proper PDF later.
+            data = toJson(transactions, scope, accountIdToName);
+        } else {
             mime = "application/pdf";
             ext = ".pdf";
-            data = toPrettyText(transactions, accounts, budgets, scope, accountIdToCurrency);
+            byte[] pdfBytes = buildPdfBytes(transactions, accounts, budgets, scope, accountIdToCurrency, accountIdToName);
+            String filename = filenameBase + ext;
+            return saveToDownloads(ctx, filename, mime, pdfBytes);
         }
 
         String filename = filenameBase + ext;
         return saveToDownloads(ctx, filename, mime, data.getBytes(StandardCharsets.UTF_8));
     }
 
-    private static String toCsv(List<TransactionModel> t, List<AccountModel> a, List<BudgetModel> b, String scope, java.util.Map<Integer, String> accountCurrency) {
+    // Create a temporary file in cache for sharing only; does not persist to Downloads
+    public static Uri exportForShare(Context ctx, String format, String scope, long start, long end,
+                                     TransactionDao tDao, AccountDAO aDao, BudgetDAO bDao) throws IOException {
+        String filenameBase = "moneytracker_export_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String mime;
+        String ext;
+        String data;
+
+        List<TransactionModel> transactions = new ArrayList<>();
+        List<AccountModel> accounts = new ArrayList<>();
+        List<BudgetModel> budgets = new ArrayList<>();
+
+        if (scope.contains("Transactions") || scope.contains("All")) {
+            transactions = tDao.getTransactionByDateRange(start, end);
+        }
+        accounts = aDao.getAllAccountsSync();
+        if (scope.contains("Budgets") || scope.contains("All")) {
+            budgets = bDao.getAllBudgetsSync();
+        }
+
+        if ("CSV".equalsIgnoreCase(format)) {
+            mime = "text/csv";
+            ext = ".csv";
+            data = toCsv(transactions, scope, buildAccountNameMap(accounts));
+        } else if ("JSON".equalsIgnoreCase(format)) {
+            mime = "application/json";
+            ext = ".json";
+            data = toJson(transactions, scope, buildAccountNameMap(accounts));
+        } else {
+            mime = "application/pdf";
+            ext = ".pdf";
+            byte[] pdfBytes = buildPdfBytes(transactions, accounts, budgets, scope, buildCurrencyMap(accounts), buildAccountNameMap(accounts));
+            File cacheDir = new File(ctx.getCacheDir(), "exports");
+            if (!cacheDir.exists()) cacheDir.mkdirs();
+            File outFile = new File(cacheDir, filenameBase + ext);
+            try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                fos.write(pdfBytes);
+                fos.flush();
+            }
+            return FileProvider.getUriForFile(ctx, ctx.getPackageName() + ".fileprovider", outFile);
+        }
+
+        File cacheDir = new File(ctx.getCacheDir(), "exports");
+        if (!cacheDir.exists()) cacheDir.mkdirs();
+        File outFile = new File(cacheDir, filenameBase + ext);
+        try (FileOutputStream fos = new FileOutputStream(outFile)) {
+            fos.write(data.getBytes(StandardCharsets.UTF_8));
+            fos.flush();
+        }
+        return FileProvider.getUriForFile(ctx, ctx.getPackageName() + ".fileprovider", outFile);
+    }
+
+    private static String toCsv(List<TransactionModel> t, String scope, java.util.Map<Integer, String> accountNames) {
         StringBuilder sb = new StringBuilder();
         if (scope.contains("Transactions") || scope.contains("All")) {
-            sb.append("Transactions\n");
-            sb.append("id,accountId,type,amount,currency,date,category,note\n");
+            sb.append("Date,Category,Account,Type,Amount,Notes\n");
+            java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
             for (TransactionModel x : t) {
-                sb.append(x.getTransId()).append(',')
-                        .append(x.getAccountId()).append(',')
-                        .append(x.getType()).append(',')
-                        .append(x.getAmount()).append(',')
-                        .append(accountCurrency.getOrDefault(x.getAccountId(), "")).append(',')
-                        .append(x.getTransactionDate()).append(',')
-                        .append(safe(x.getCategory())).append(',')
-                        .append(safe(x.getNote())).append('\n');
-            }
-            sb.append('\n');
-        }
-        if (scope.contains("Accounts") || scope.contains("All")) {
-            sb.append("Accounts\n");
-            sb.append("id,name,type,currency,balance\n");
-            for (AccountModel x : a) {
-                sb.append(x.getAccountId()).append(',')
-                        .append(safe(x.getAccountName())).append(',')
-                        .append(safe(x.getCardType())).append(',')
-                        .append(x.getCurrency()).append(',')
-                        .append(x.getBalance()).append('\n');
-            }
-            sb.append('\n');
-        }
-        if (scope.contains("Budgets") || scope.contains("All")) {
-            sb.append("Budgets\n");
-            sb.append("id,category,type,amount,spent,year,month,day\n");
-            for (BudgetModel x : b) {
-                sb.append(x.getBudgetId()).append(',')
-                        .append(safe(x.getCategory())).append(',')
-                        .append(safe(x.getBudgetType())).append(',')
-                        .append(x.getBudgetAmount()).append(',')
-                        .append(x.getSpentAmount()).append(',')
-                        .append(x.getYear()).append(',')
-                        .append(x.getMonth()).append(',')
-                        .append(x.getDay()).append('\n');
+                String date = df.format(x.getTransactionDate());
+                String category = safe(x.getCategory());
+                String account = accountNames.getOrDefault(x.getAccountId(), "");
+                String type = safe(x.getType());
+                String amount = String.format(java.util.Locale.getDefault(), "%.2f", x.getAmount());
+                String notes = safe(x.getNote());
+                sb.append(csv(date)).append(',')
+                        .append(csv(category)).append(',')
+                        .append(csv(account)).append(',')
+                        .append(csv(type)).append(',')
+                        .append(csv(amount)).append(',')
+                        .append(csv(notes)).append('\n');
             }
         }
         return sb.toString();
     }
 
-    private static String toJson(List<TransactionModel> t, List<AccountModel> a, List<BudgetModel> b, String scope, java.util.Map<Integer, String> accountCurrency) {
-        StringBuilder sb = new StringBuilder();
-        sb.append('{');
-        boolean firstSection = true;
+    private static java.util.Map<Integer, String> buildCurrencyMap(List<AccountModel> accounts) {
+        java.util.HashMap<Integer, String> map = new java.util.HashMap<>();
+        for (AccountModel am : accounts) map.put(am.getAccountId(), am.getCurrency());
+        return map;
+    }
+
+    private static java.util.Map<Integer, String> buildAccountNameMap(List<AccountModel> accounts) {
+        java.util.HashMap<Integer, String> map = new java.util.HashMap<>();
+        for (AccountModel am : accounts) map.put(am.getAccountId(), safe(am.getAccountName()));
+        return map;
+    }
+
+    private static byte[] buildPdfBytes(List<TransactionModel> t, List<AccountModel> a, List<BudgetModel> b, String scope,
+                                        java.util.Map<Integer, String> accountCurrency,
+                                        java.util.Map<Integer, String> accountNames) throws IOException {
+        PdfDocument doc = new PdfDocument();
+        Paint textPaint = new Paint();
+        textPaint.setTextSize(11f);
+        Paint titlePaint = new Paint(textPaint);
+        titlePaint.setTextSize(16f);
+        titlePaint.setFakeBoldText(true);
+        Paint headerPaint = new Paint(textPaint);
+        headerPaint.setFakeBoldText(true);
+        Paint borderPaint = new Paint();
+        borderPaint.setStyle(Paint.Style.STROKE);
+        borderPaint.setStrokeWidth(1f);
+
+        int pageWidth = 595;   // A4
+        int pageHeight = 842;
+        int margin = 24;
+        int y;
+        int rowHeight = 20;
+
+        int[] colWidths = new int[6];
+        int tableWidth = pageWidth - margin * 2;
+        // Date, Category, Account, Type, Amount, Notes
+        colWidths[0] = (int)(tableWidth * 0.15f);
+        colWidths[1] = (int)(tableWidth * 0.18f);
+        colWidths[2] = (int)(tableWidth * 0.20f);
+        colWidths[3] = (int)(tableWidth * 0.12f);
+        colWidths[4] = (int)(tableWidth * 0.12f);
+        colWidths[5] = tableWidth - (colWidths[0]+colWidths[1]+colWidths[2]+colWidths[3]+colWidths[4]);
+
+        java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+
+        int pageNum = 1;
+        PdfDocument.Page page = doc.startPage(new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNum).create());
+        Canvas canvas = page.getCanvas();
+
+        // Title
+        y = margin + 10;
+        canvas.drawText("Expense Tracker - Transactions Report", margin, y, titlePaint);
+        y += 20;
+
+        // Header row
+        int x = margin;
+        String[] headers = new String[]{"Date","Category","Account","Type","Amount","Notes"};
+        for (int i = 0; i < headers.length; i++) {
+            canvas.drawRect(x, y, x + colWidths[i], y + rowHeight, borderPaint);
+            canvas.drawText(headers[i], x + 4, y + 14, headerPaint);
+            x += colWidths[i];
+        }
+        y += rowHeight;
+
         if (scope.contains("Transactions") || scope.contains("All")) {
-            sb.append("\"transactions\":[");
+            for (TransactionModel tx : t) {
+                String[] row = new String[]{
+                        df.format(tx.getTransactionDate()),
+                        safe(tx.getCategory()),
+                        accountNames.getOrDefault(tx.getAccountId(), ""),
+                        safe(tx.getType()),
+                        String.format(java.util.Locale.getDefault(), "%.2f", tx.getAmount()),
+                        safe(tx.getNote())
+                };
+
+                // Calculate required height with wrapping for Notes
+                int currentRowHeight = rowHeight;
+                // Wrap columns 1,2,5 by width
+                int[] wrapCols = new int[]{1,2,5};
+                for (int wc : wrapCols) {
+                    java.util.List<String> parts = wrapLine(row[wc], textPaint, colWidths[wc]-8);
+                    int h = parts.size() * rowHeight;
+                    if (h > currentRowHeight) currentRowHeight = h;
+                }
+
+                if (y + currentRowHeight > pageHeight - margin) {
+                    doc.finishPage(page);
+                    pageNum++;
+                    page = doc.startPage(new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNum).create());
+                    canvas = page.getCanvas();
+                    y = margin + 10;
+                    canvas.drawText("Expense Tracker - Transactions Report", margin, y, titlePaint);
+                    y += 20;
+                    // redraw header
+                    x = margin;
+                    for (int i = 0; i < headers.length; i++) {
+                        canvas.drawRect(x, y, x + colWidths[i], y + rowHeight, borderPaint);
+                        canvas.drawText(headers[i], x + 4, y + 14, headerPaint);
+                        x += colWidths[i];
+                    }
+                    y += rowHeight;
+                }
+
+                // Draw the row borders and text (with wrapping where needed)
+                x = margin;
+                for (int c = 0; c < headers.length; c++) {
+                    canvas.drawRect(x, y, x + colWidths[c], y + currentRowHeight, borderPaint);
+                    if (c == 4) {
+                        // Amount right-aligned
+                        float textWidth = textPaint.measureText(row[c]);
+                        canvas.drawText(row[c], x + colWidths[c] - 4 - textWidth, y + 14, textPaint);
+                    } else if (c == 0 || c == 3) {
+                        canvas.drawText(row[c], x + 4, y + 14, textPaint);
+                    } else {
+                        // Wrapped text for Category/Account/Notes
+                        int yy = y + 14;
+                        for (String wl : wrapLine(row[c], textPaint, colWidths[c]-8)) {
+                            canvas.drawText(wl, x + 4, yy, textPaint);
+                            yy += rowHeight;
+                        }
+                    }
+                    x += colWidths[c];
+                }
+                y += currentRowHeight;
+            }
+        }
+
+        doc.finishPage(page);
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        doc.writeTo(baos);
+        doc.close();
+        return baos.toByteArray();
+    }
+
+    private static java.util.List<String> wrapLine(String text, Paint paint, int maxWidth) {
+        java.util.ArrayList<String> out = new java.util.ArrayList<>();
+        if (text == null) { out.add(""); return out; }
+        String[] words = text.split(" ");
+        StringBuilder line = new StringBuilder();
+        for (String w : words) {
+            String candidate = line.length() == 0 ? w : line.toString() + " " + w;
+            if (paint.measureText(candidate) > maxWidth) {
+                if (line.length() > 0) out.add(line.toString());
+                line.setLength(0);
+                line.append(w);
+            } else {
+                line.setLength(0);
+                line.append(candidate);
+            }
+        }
+        out.add(line.toString());
+        return out;
+    }
+
+    private static String toJson(List<TransactionModel> t, String scope, java.util.Map<Integer, String> accountNames) {
+        StringBuilder sb = new StringBuilder();
+        if (scope.contains("Transactions") || scope.contains("All")) {
+            java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+            sb.append("[\n");
             for (int i = 0; i < t.size(); i++) {
                 TransactionModel x = t.get(i);
-                if (i>0) sb.append(',');
-                sb.append('{')
-                        .append("\"id\":").append(x.getTransId()).append(',')
-                        .append("\"accountId\":").append(x.getAccountId()).append(',')
-                        .append("\"type\":\"").append(escape(x.getType())).append("\",")
-                        .append("\"amount\":").append(x.getAmount()).append(',')
-                        .append("\"currency\":\"").append(escape(accountCurrency.getOrDefault(x.getAccountId(), ""))).append("\",")
-                        .append("\"date\":").append(x.getTransactionDate()).append(',')
-                        .append("\"category\":\"").append(escape(x.getCategory())).append("\",")
-                        .append("\"note\":\"").append(escape(x.getNote())).append("\"}");
+                if (i>0) sb.append(",\n");
+                String date = df.format(x.getTransactionDate());
+                String category = escape(x.getCategory());
+                String account = escape(accountNames.getOrDefault(x.getAccountId(), ""));
+                String type = escape(x.getType());
+                String notes = escape(x.getNote());
+                String amount = String.format(java.util.Locale.getDefault(), "%.2f", x.getAmount());
+                sb.append("  {\n")
+                        .append("    \"date\": \"").append(date).append("\",\n")
+                        .append("    \"category\": \"").append(category).append("\",\n")
+                        .append("    \"account\": \"").append(account).append("\",\n")
+                        .append("    \"type\": \"").append(type).append("\",\n")
+                        .append("    \"amount\": ").append(amount).append(",\n")
+                        .append("    \"notes\": \"").append(notes).append("\"\n")
+                        .append("  }");
             }
-            sb.append(']');
-            firstSection = false;
+            sb.append("\n]");
+        } else {
+            sb.append("[]");
         }
-        if (scope.contains("Accounts") || scope.contains("All")) {
-            if (!firstSection) sb.append(',');
-            sb.append("\"accounts\":[");
-            for (int i = 0; i < a.size(); i++) {
-                AccountModel x = a.get(i);
-                if (i>0) sb.append(',');
-                sb.append('{')
-                        .append("\"id\":").append(x.getAccountId()).append(',')
-                        .append("\"name\":\"").append(escape(x.getAccountName())).append("\",")
-                        .append("\"type\":\"").append(escape(x.getCardType())).append("\",")
-                        .append("\"currency\":\"").append(escape(x.getCurrency())).append("\",")
-                        .append("\"balance\":").append(x.getBalance()).append('}');
-            }
-            sb.append(']');
-            firstSection = false;
-        }
-        if (scope.contains("Budgets") || scope.contains("All")) {
-            if (!firstSection) sb.append(',');
-            sb.append("\"budgets\":[");
-            for (int i = 0; i < b.size(); i++) {
-                BudgetModel x = b.get(i);
-                if (i>0) sb.append(',');
-                sb.append('{')
-                        .append("\"id\":").append(x.getBudgetId()).append(',')
-                        .append("\"category\":\"").append(escape(x.getCategory())).append("\",")
-                        .append("\"type\":\"").append(escape(x.getBudgetType())).append("\",")
-                        .append("\"amount\":").append(x.getBudgetAmount()).append(',')
-                        .append("\"spent\":").append(x.getSpentAmount()).append(',')
-                        .append("\"year\":").append(x.getYear()).append(',')
-                        .append("\"month\":").append(x.getMonth()).append(',')
-                        .append("\"day\":").append(x.getDay()).append('}');
-            }
-            sb.append(']');
-        }
-        sb.append('}');
         return sb.toString();
     }
 
@@ -271,6 +433,12 @@ public class ExportUtils {
 
     private static String safe(String s) { return s == null ? "" : s.replace(","," "); }
     private static String escape(String s) { return s == null ? "" : s.replace("\\","\\\\").replace("\"","\\\""); }
+    private static String csv(String s) {
+        if (s == null) return "";
+        boolean needsQuotes = s.contains(",") || s.contains("\"") || s.contains("\n") || s.contains(" ");
+        String v = s.replace("\"", "\"\"");
+        return needsQuotes ? "\"" + v + "\"" : v;
+    }
 
     private static Uri saveToDownloads(Context ctx, String filename, String mime, byte[] bytes) throws IOException {
         ContentValues values = new ContentValues();

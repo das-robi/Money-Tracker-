@@ -19,7 +19,7 @@ public class CategoryRepository {
 
     public CategoryRepository(Application application) {
         TransactionDatabase database = TransactionDatabase.getInstance(application);
-        categoryDAO = database.categoryDAO();
+        categoryDAO = database.categoryDao();
         allCategories = categoryDAO.getAllCategories();
     }
 

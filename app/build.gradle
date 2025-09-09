@@ -50,6 +50,8 @@ dependencies {
     //Firebase: When Using BoM dont need to version num.
     implementation('com.google.firebase:firebase-firestore')
 
+    implementation('com.google.firebase:firebase-database')
+
     // When using the BoM, don't specify versions in Firebase dependencies
     implementation 'com.google.firebase:firebase-analytics'
     // Add the dependency for the Firebase Authentication library
@@ -85,4 +87,7 @@ dependencies {
 
     // Gson for JSON parsing
     implementation 'com.google.code.gson:gson:2.10.1'
+
+    // WorkManager for background sync
+    implementation "androidx.work:work-runtime:2.9.0"
 }

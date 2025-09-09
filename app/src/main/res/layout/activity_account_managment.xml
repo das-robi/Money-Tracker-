@@ -7,42 +7,50 @@
     tools:context=".Views.Fragments.AccountManagementFrag"
     android:orientation="vertical">
 
-    <!-- Blue Header -->
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#4285F4"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp">
+        android:orientation="vertical"
+        android:background="@color/blue">
 
-        <!-- Back Arrow -->
-        <ImageView
-            android:id="@+id/btnBack"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/outline_chevron_backward_24"
-            android:tint="@color/white"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true" />
-
-        <!-- Title -->
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Manage Accounts"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:fontFamily="@font/poppins"
-            android:gravity="center" />
-
-        <!-- Empty space to balance the back button -->
+        <!-- Status Bar Spacer -->
         <View
-            android:layout_width="24dp"
+            android:layout_width="match_parent"
             android:layout_height="24dp" />
+
+        <!-- Toolbar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/outline_chevron_backward_24"
+                android:tint="@color/white"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="4dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/account_management"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <View
+                android:layout_width="24dp"
+                android:layout_height="24dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -58,108 +66,61 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="25dp"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:orientation="vertical"
+            android:padding="20dp">
 
-
-            <LinearLayout
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1">
+                android:text="@string/total_balance"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:alpha="0.8" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/total_balance"
-                    android:textColor="@color/white"
-                    android:textSize="15sp"
-                    android:alpha="0.8"/>
-
-                <TextView
-                    android:id="@+id/tvTotalBalance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="@color/white"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="4dp"/>
-
-                <TextView
-                    android:id="@+id/tvTotalAccount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="@color/white"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="4dp"/>
-
-            </LinearLayout>
-
-            <LinearLayout
+            <TextView
+                android:id="@+id/tvTotalBalance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1">
+                android:text="@string/_0"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/remaining_balance"
-                    android:textColor="@color/white"
-                    android:textSize="15sp"
-                    android:alpha="0.8"/>
-
-                <TextView
-                    android:id="@+id/tvTotalRemainBalance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="@color/white"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="4dp"/>
-
-            </LinearLayout>
-
+            <TextView
+                android:id="@+id/tvTotalAccounts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_0_accounts"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:alpha="0.8"
+                android:layout_marginTop="4dp" />
 
         </LinearLayout>
 
-
-
     </androidx.cardview.widget.CardView>
 
-    <!-- Account List -->
+    <!-- Accounts List -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/accountRecyclerView"
+        android:id="@+id/accountsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp"
+        android:paddingHorizontal="16dp"
         android:clipToPadding="false" />
 
     <!-- Add Account Button -->
-    <LinearLayout
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAddAccount"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
-
-        <Button
-            android:id="@+id/btnAddAccount"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Add Account"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:fontFamily="@font/poppins"
-            android:background="@drawable/defaultbtn_bg"
-            android:backgroundTint="#66A3FF"
-            android:elevation="4dp" />
-
-    </LinearLayout>
+        android:layout_height="56dp"
+        android:layout_margin="16dp"
+        android:text="@string/add_account"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"
+        app:backgroundTint="@color/blue" />
 
 </LinearLayout>

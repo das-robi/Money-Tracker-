@@ -1,57 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/defaultbtn_bg"
-    android:elevation="2dp">
+    android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/categoryIcons"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:src="@drawable/food"
-        android:background="@drawable/categoryicons_bg"
-        android:tint="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <TextView
-        android:id="@+id/categoryName"
-        android:layout_width="wrap_content"
+    <!-- Food Category Item -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:text="Food"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/categoryIcons"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.478" />
+        android:orientation="horizontal"
+        android:background="@drawable/transparentbg"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:elevation="2dp">
 
-    <ImageView
-        android:id="@+id/editBTN"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="208dp"
-        android:src="@drawable/edit"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/categoryName"
-        app:layout_constraintTop_toTopOf="parent" />
+        <!-- Food Icon Circle -->
+        <FrameLayout
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/categoryicons_bg">
 
-    <ImageView
-        android:id="@+id/deleteBTN"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:src="@drawable/trash"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/editBTN"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <ImageView
+                android:id="@+id/categoryIcons"
+                android:layout_width="29dp"
+                android:layout_height="29dp"
+                android:layout_gravity="center"
+                android:src="@drawable/food"
+                android:tint="#FFFFFF"
+                android:contentDescription="@string/food_icon" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </FrameLayout>
+
+        <!-- Food Text -->
+        <TextView
+            android:id="@+id/categoryName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/food"
+            android:textColor="#333333"
+            android:textSize="20sp"
+            android:textStyle="normal"
+            android:layout_marginStart="20dp"
+            android:fontFamily="sans-serif" />
+
+        <!-- Edit Icon -->
+        <ImageView
+            android:id="@+id/editBTN"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/edit"
+            android:tint="#4285F4"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@string/edit"
+            android:scaleType="centerInside" />
+
+        <!-- Delete Icon -->
+        <ImageView
+            android:id="@+id/deleteBTN"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/ic_delete"
+            android:tint="#F44336"
+            android:contentDescription="@string/delete"
+            android:scaleType="centerInside" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -16,27 +16,12 @@ public class BudgetViewModel extends AndroidViewModel {
     private BudgetRepository budgetRepository;
     private LiveData<List<BudgetModel>> allBudgets;
 
-    public BudgetViewModel(@NonNull Application application) {
+    public BudgetViewModel(Application application) {
         super(application);
-
         budgetRepository = new BudgetRepository(application);
         allBudgets = budgetRepository.getAllBudgets();
     }
 
-    public LiveData<List<BudgetModel>> getAllBudgets() {
-        return allBudgets;
-    }
-
-    public LiveData<BudgetModel> getBudgetById(int budgetId) {
-        return budgetRepository.getBudgetById(budgetId);
-    }
-
-    public LiveData<List<BudgetModel>> getBudgetsByType(String budgetType) {
-        return budgetRepository.getBudgetByType(budgetType);
-    }
-
-
-    // Budget Adding, Updating and Deleting Methods
     public void insertBudget(BudgetModel budgetModel) {
         budgetRepository.insertBudget(budgetModel);
     }
@@ -49,7 +34,18 @@ public class BudgetViewModel extends AndroidViewModel {
         budgetRepository.deleteBudget(budgetModel);
     }
 
-    // Additional methods for Spent Budget and Delete Budget
+    public LiveData<List<BudgetModel>> getAllBudgets() {
+        return allBudgets;
+    }
+
+    public LiveData<BudgetModel> getBudgetById(int budgetId) {
+        return budgetRepository.getBudgetById(budgetId);
+    }
+
+    public LiveData<List<BudgetModel>> getBudgetsByType(String budgetType) {
+        return budgetRepository.getBudgetsByType(budgetType);
+    }
+
     public void updateBudgetSpent(int budgetId, double amount) {
         budgetRepository.updateBudgetSpent(budgetId, amount);
     }
@@ -58,14 +54,13 @@ public class BudgetViewModel extends AndroidViewModel {
         budgetRepository.deleteAllBudgets();
     }
 
-
     // Additional methods for better budget management
     public LiveData<List<BudgetModel>> getBudgetsByMonth(int year, int month) {
-        return budgetRepository.getBudgetByMonth(year, month);
+        return budgetRepository.getBudgetsByMonth(year, month);
     }
 
     public LiveData<List<BudgetModel>> getBudgetsByYear(int year) {
-        return budgetRepository.getBudgetByYear(year);
+        return budgetRepository.getBudgetsByYear(year);
     }
 
     public LiveData<Double> getTotalBudgetForMonth(int year, int month) {
@@ -75,5 +70,4 @@ public class BudgetViewModel extends AndroidViewModel {
     public LiveData<Double> getTotalSpentForMonth(int year, int month) {
         return budgetRepository.getTotalSpentForMonth(year, month);
     }
-
 }

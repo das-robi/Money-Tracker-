@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name="utils.User"
@@ -19,17 +20,23 @@
         android:theme="@style/Theme.MoneyTracker"
         tools:ignore="MissingClass">
         <activity
-            android:name=".Views.activity.ProfileSettingsActivity"
+            android:name=".Views.activity.EditTransactionActivity"
             android:exported="false" />
         <activity
+            android:name=".Views.activity.ProfileSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MoneyTracker" />
+        <activity
             android:name=".Views.activity.FontSizeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.MoneyTracker"/>
         <activity
             android:name=".Views.activity.ChangePasswordActivity"
             android:exported="false" />
         <activity
             android:name=".Views.activity.ExportSettingsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.MoneyTracker" />
         <activity
             android:name=".Views.activity.LanguageSettingsActivity"
             android:exported="false"
@@ -40,10 +47,6 @@
             android:theme="@style/Theme.MoneyTracker" />
         <activity
             android:name=".Views.activity.AddCategoryActivity"
-            android:exported="false"
-            android:theme="@style/Theme.MoneyTracker" />
-        <activity
-            android:name=".Views.activity.CategorySettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.MoneyTracker" />
         <activity
@@ -64,8 +67,7 @@
             android:theme="@style/Theme.MoneyTracker" />
         <activity
             android:name=".Views.activity.AddBudgetActivity"
-            android:exported="false"
-            android:theme="@style/Theme.MoneyTracker" />
+            android:exported="false"/>
         <activity
             android:name=".Views.activity.BudgetActivity"
             android:exported="false"
@@ -121,9 +123,22 @@
         <activity
             android:name=".Views.activity.MainActivity"
             android:exported="true" /> <!-- Notification Receiver -->
+
+
         <receiver
             android:name=".utils.NotificationReceiver"
             android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 </manifest>

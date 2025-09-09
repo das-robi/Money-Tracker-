@@ -97,22 +97,10 @@ public class AddAndEditAccount extends AppCompatActivity {
 
 
         // Icon IDs (you can add more icons as needed)
-        iconIds.add(R.drawable.cards);
-        iconIds.add(R.drawable.food);
-        iconIds.add(R.drawable.home);
-        iconIds.add(R.drawable.profile);
-        iconIds.add(R.drawable.reports);
-        iconIds.add(R.drawable.search);
-        iconIds.add(R.drawable.calender);
-        iconIds.add(R.drawable.charts);
-        iconIds.add(R.drawable.user);
-        iconIds.add(R.drawable.user_circle);
-        iconIds.add(R.drawable.outline_add_24);
-        iconIds.add(R.drawable.outline_calendar_month_24);
-        iconIds.add(R.drawable.outline_chevron_backward_24);
-        iconIds.add(R.drawable.outline_chevron_forward_24);
-        iconIds.add(R.drawable.outline_brightness_empty_24);
-        iconIds.add(R.drawable.rounded_check_box_outline_blank_24);
+        iconIds.add(R.drawable.creditcard);
+        iconIds.add(R.drawable.deviit);
+        iconIds.add(R.drawable.bank);
+        iconIds.add(R.drawable.bank);
     }
 
     private void setupViews() {

@@ -14,74 +14,67 @@ import java.util.concurrent.Executors;
 
 public class BudgetRepository {
 
-    private BudgetDAO budgetDAO;
+    private BudgetDAO budgetDao;
     private LiveData<List<BudgetModel>> allBudgets;
 
-
-    public BudgetRepository(Application application){
-
+    public BudgetRepository(Application application) {
         TransactionDatabase database = TransactionDatabase.getInstance(application);
-
-        budgetDAO = database.budgetDAO();
-        allBudgets = budgetDAO.getAllBudgets();
+        budgetDao = database.budgetDao();
+        allBudgets = budgetDao.getAllBudgets();
     }
 
-
-    public LiveData<List<BudgetModel>> getAllBudgets(){
-        return allBudgets;
-    }
-
-    public LiveData<BudgetModel> getBudgetById(int budgetId){
-        return budgetDAO.getBudgetById(budgetId);
-    }
-
-
-    public LiveData<List<BudgetModel>> getBudgetByType(String budgetType){
-        return budgetDAO.getBudgetsByType(budgetType);
-    }
-
-
-    // Budget Adding, Updating and Deleting Methods
     public void insertBudget(BudgetModel budgetModel) {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(() -> budgetDAO.insertBudget(budgetModel));
+        executorService.execute(() -> budgetDao.insertBudget(budgetModel));
     }
 
     public void updateBudget(BudgetModel budgetModel) {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(() -> budgetDAO.updateBudget(budgetModel));
+        executorService.execute(() -> budgetDao.updateBudget(budgetModel));
     }
 
     public void deleteBudget(BudgetModel budgetModel) {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(() -> budgetDAO.deleteBudget(budgetModel));
+        executorService.execute(() -> budgetDao.deleteBudget(budgetModel));
     }
 
-    // Additional methods for Spent Budget and Delete Budget
+    public LiveData<List<BudgetModel>> getAllBudgets() {
+        return allBudgets;
+    }
+
+    public LiveData<BudgetModel> getBudgetById(int budgetId) {
+        return budgetDao.getBudgetById(budgetId);
+    }
+
+    public LiveData<List<BudgetModel>> getBudgetsByType(String budgetType) {
+        return budgetDao.getBudgetsByType(budgetType);
+    }
+
     public void updateBudgetSpent(int budgetId, double amount) {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(() -> budgetDAO.updateBudgetSpent(budgetId, amount));
+        executorService.execute(() -> budgetDao.updateBudgetSpent(budgetId, amount));
     }
 
     public void deleteAllBudgets() {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(() -> budgetDAO.deleteAllBudgets());
+        executorService.execute(() -> budgetDao.deleteAllBudgets());
     }
 
     // Additional methods for better budget management
-    public LiveData<List<BudgetModel>> getBudgetByMonth(int year, int month) {
-        return budgetDAO.getBudgetsByMonth(year, month);
+    public LiveData<List<BudgetModel>> getBudgetsByMonth(int year, int month) {
+        return budgetDao.getBudgetsByMonth(year, month);
     }
 
-    public LiveData<List<BudgetModel>> getBudgetByYear(int year) {
-        return budgetDAO.getBudgetsByYear(year);
+    public LiveData<List<BudgetModel>> getBudgetsByYear(int year) {
+        return budgetDao.getBudgetsByYear(year);
     }
 
     public LiveData<Double> getTotalBudgetForMonth(int year, int month) {
-        return budgetDAO.getTotalBudgetForMonth(year, month);
+        return budgetDao.getTotalBudgetForMonth(year, month);
     }
 
     public LiveData<Double> getTotalSpentForMonth(int year, int month) {
-        return budgetDAO.getTotalSpentForMonth(year, month);
+        return budgetDao.getTotalSpentForMonth(year, month);
     }
 }
+

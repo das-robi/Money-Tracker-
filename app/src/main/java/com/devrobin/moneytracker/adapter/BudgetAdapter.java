@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder>{
+
     private Context context;
     private ArrayList<BudgetModel> budgetList;
 

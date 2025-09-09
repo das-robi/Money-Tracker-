@@ -8,7 +8,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.devrobin.moneytracker.MVVM.DAO.AccountDAO;
+import com.devrobin.moneytracker.MVVM.DAO.BudgetDAO;
 import com.devrobin.moneytracker.MVVM.Model.AccountModel;
+import com.devrobin.moneytracker.MVVM.Model.BudgetModel;
 import com.devrobin.moneytracker.MVVM.Model.CategoryChartData;
 import com.devrobin.moneytracker.MVVM.Model.TransactionModel;
 import com.devrobin.moneytracker.MVVM.DAO.TransactionDao;
@@ -24,13 +26,13 @@ import utils.DailyChartData;
 import utils.DailySummer;
 import utils.MonthlyChartData;
 import utils.MonthlySummary;
+import utils.NotificationHelper;
 
 public class TransRepository{
 
     private TransactionDao transDao;
-    private AccountDAO accountDAO;
-
-
+    private AccountDAO accountDao;
+    private BudgetDAO budgetDao;
 
     private LiveData<List<TransactionModel>> allTransaction;
 
@@ -39,7 +41,8 @@ public class TransRepository{
         TransactionDatabase database = TransactionDatabase.getInstance(application);
 
         transDao = database.transDao();
-        accountDAO = database.accountDAO();
+        accountDao = database.accountDao();
+        budgetDao = database.budgetDao();
         allTransaction = transDao.getAllTransaction();
     }
 
@@ -58,41 +61,40 @@ public class TransRepository{
      * Get daily summary with currency conversion to default currency
      */
     public LiveData<DailySummer> getDailySummerWithConversion(Date date, String defaultCurrency){
-        MutableLiveData<DailySummer> result = new MutableLiveData<>();
+        androidx.lifecycle.MediatorLiveData<DailySummer> result = new androidx.lifecycle.MediatorLiveData<>();
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            try {
-                // Get transactions for the date
-                List<TransactionModel> transactions = transDao.getTransactionByDateSync(date.getTime());
+        LiveData<List<TransactionModel>> source = transDao.getTransactionByDate(date.getTime());
+        result.addSource(source, transactions -> {
+            TransactionDatabase.databaseWriteExecutor.execute(() -> {
+                try {
+                    double totalIncome = 0.0;
+                    double totalExpense = 0.0;
+                    int transactionCount = transactions != null ? transactions.size() : 0;
 
-                double totalIncome = 0.0;
-                double totalExpense = 0.0;
-                int transactionCount = transactions.size();
+                    if (transactions != null) {
+                        for (TransactionModel transaction : transactions) {
+                            double amount = transaction.getAmount();
+                            String transactionCurrency = getTransactionCurrency(transaction.getAccountId());
 
-                for (TransactionModel transaction : transactions) {
-                    double amount = transaction.getAmount();
-                    String transactionCurrency = getTransactionCurrency(transaction.getAccountId());
+                            if (!transactionCurrency.equals(defaultCurrency)) {
+                                amount = CurrencyConverter.convert(amount, transactionCurrency, defaultCurrency);
+                            }
 
-                    // Convert to default currency if needed
-                    if (!transactionCurrency.equals(defaultCurrency)) {
-                        amount = CurrencyConverter.convert(amount, transactionCurrency, defaultCurrency);
+                            if ("INCOME".equals(transaction.getType())) {
+                                totalIncome += amount;
+                            } else if ("EXPENSE".equals(transaction.getType())) {
+                                totalExpense += amount;
+                            }
+                        }
                     }
 
-                    if ("INCOME".equals(transaction.getType())) {
-                        totalIncome += amount;
-                    } else if ("EXPENSE".equals(transaction.getType())) {
-                        totalExpense += amount;
-                    }
+                    DailySummer dailySummer = new DailySummer(totalIncome, totalExpense, transactionCount);
+                    new Handler(Looper.getMainLooper()).post(() -> result.setValue(dailySummer));
+                } catch (Exception e) {
+                    LiveData<DailySummer> fallback = transDao.getDailySummery(date.getTime());
+                    new Handler(Looper.getMainLooper()).post(() -> result.addSource(fallback, result::setValue));
                 }
-
-                DailySummer dailySummer = new DailySummer(totalIncome, totalExpense, transactionCount);
-                result.postValue(dailySummer);
-
-            } catch (Exception e) {
-                // Fallback to original method if conversion fails
-                result.postValue(transDao.getDailySummery(date.getTime()).getValue());
-            }
+            });
         });
 
         return result;
@@ -104,13 +106,12 @@ public class TransRepository{
     private String getTransactionCurrency(int accountId) {
         try {
             // Get account currency from database
-            AccountModel account = accountDAO.getAccountByIdSync(accountId);
+            AccountModel account = accountDao.getAccountByIdSync(accountId);
             return account != null ? account.getCurrency() : "BDT"; // Default to BDT
         } catch (Exception e) {
             return "BDT"; // Default fallback
         }
     }
-
 
     public LiveData<MonthlySummary> getMonthlySummer(Date date){
         return transDao.getMonthlySummary(date.getTime());
@@ -120,41 +121,48 @@ public class TransRepository{
      * Get monthly summary with currency conversion to default currency
      */
     public LiveData<MonthlySummary> getMonthlySummaryWithConversion(Date date, String defaultCurrency){
-        MutableLiveData<MonthlySummary> result = new MutableLiveData<>();
+        androidx.lifecycle.MediatorLiveData<MonthlySummary> result = new androidx.lifecycle.MediatorLiveData<>();
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            try {
-                // Get transactions for the month
-                List<TransactionModel> transactions = transDao.getTransactionByMonthSync(date.getTime());
+        // Observe all transactions and compute month summary when they change
+        result.addSource(allTransaction, transactions -> {
+            TransactionDatabase.databaseWriteExecutor.execute(() -> {
+                try {
+                    double monthlyIncome = 0.0;
+                    double monthlyExpense = 0.0;
+                    int monthlyTransaction = 0;
 
-                double monthlyIncome = 0.0;
-                double monthlyExpense = 0.0;
-                int monthlyTransaction = transactions.size();
+                    if (transactions != null) {
+                        java.util.Calendar cal = java.util.Calendar.getInstance();
+                        cal.setTime(date);
+                        int y = cal.get(java.util.Calendar.YEAR);
+                        int m = cal.get(java.util.Calendar.MONTH);
 
-                for (TransactionModel transaction : transactions) {
-                    double amount = transaction.getAmount();
-                    String transactionCurrency = getTransactionCurrency(transaction.getAccountId());
-
-                    // Convert to default currency if needed
-                    if (!transactionCurrency.equals(defaultCurrency)) {
-                        amount = CurrencyConverter.convert(amount, transactionCurrency, defaultCurrency);
+                        for (TransactionModel transaction : transactions) {
+                            java.util.Calendar tcal = java.util.Calendar.getInstance();
+                            tcal.setTime(transaction.getTransactionDate());
+                            if (tcal.get(java.util.Calendar.YEAR) == y && tcal.get(java.util.Calendar.MONTH) == m) {
+                                double amount = transaction.getAmount();
+                                String transactionCurrency = getTransactionCurrency(transaction.getAccountId());
+                                if (!transactionCurrency.equals(defaultCurrency)) {
+                                    amount = CurrencyConverter.convert(amount, transactionCurrency, defaultCurrency);
+                                }
+                                if ("INCOME".equals(transaction.getType())) {
+                                    monthlyIncome += amount;
+                                } else if ("EXPENSE".equals(transaction.getType())) {
+                                    monthlyExpense += amount;
+                                }
+                                monthlyTransaction++;
+                            }
+                        }
                     }
 
-                    if ("INCOME".equals(transaction.getType())) {
-                        monthlyIncome += amount;
-                    } else if ("EXPENSE".equals(transaction.getType())) {
-                        monthlyExpense += amount;
-                    }
+                    MonthlySummary monthlySummary = new MonthlySummary(monthlyIncome, monthlyExpense, monthlyTransaction);
+                    new Handler(Looper.getMainLooper()).post(() -> result.setValue(monthlySummary));
+                } catch (Exception e) {
+                    LiveData<MonthlySummary> fallback = transDao.getMonthlySummary(date.getTime());
+                    new Handler(Looper.getMainLooper()).post(() -> result.addSource(fallback, result::setValue));
                 }
-
-                MonthlySummary monthlySummary = new MonthlySummary(monthlyIncome, monthlyExpense, monthlyTransaction);
-                result.postValue(monthlySummary);
-
-            } catch (Exception e) {
-                // Fallback to original method if conversion fails
-                result.postValue(transDao.getMonthlySummary(date.getTime()).getValue());
-            }
+            });
         });
 
         return result;
@@ -192,6 +200,35 @@ public class TransRepository{
             @Override
             public void run() {
                 transDao.insertTransaction(transModel);
+
+                // If this is an expense, add it to the matching budget's spent amount
+                if ("EXPENSE".equals(transModel.getType())) {
+                    try {
+                        // Find budgets for this category
+                        java.util.List<BudgetModel> budgets = budgetDao.getBudgetsByCategorySync(transModel.getCategory());
+                        if (budgets != null && !budgets.isEmpty()) {
+                            // Simple rule: apply to the most recent budget record for that category
+                            // Optionally you can filter by same month/year as transaction
+                            BudgetModel target = budgets.get(0);
+
+                            // Prefer matching by year/month of transaction if available
+                            java.util.Calendar cal = java.util.Calendar.getInstance();
+                            cal.setTime(transModel.getTransactionDate());
+                            int tYear = cal.get(java.util.Calendar.YEAR);
+                            int tMonth = cal.get(java.util.Calendar.MONTH) + 1;
+
+                            for (BudgetModel b : budgets) {
+                                if (b.getYear() == tYear && b.getMonth() == tMonth) {
+                                    target = b;
+                                    break;
+                                }
+                            }
+
+                            budgetDao.updateBudgetSpent(target.getBudgetId(), transModel.getAmount());
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
             }
         });
 
@@ -230,3 +267,4 @@ public class TransRepository{
     }
 
 }
+

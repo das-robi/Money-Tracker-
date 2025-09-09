@@ -35,6 +35,10 @@ public class TransactionModel {
     @ColumnInfo(name = "accountId")
     private int accountId;
 
+    @ColumnInfo(name = "lastModifiedTime")
+    private long lastModifiedTime; // millis since epoch for conflict resolution
+
+
     public TransactionModel() {
     }
 
@@ -49,7 +53,7 @@ public class TransactionModel {
         this.createDate = new Date();
         this.transId = 0;
         this.accountId = accountId;
-
+        this.lastModifiedTime = System.currentTimeMillis();
     }
 
     //Full Constructor
@@ -62,6 +66,7 @@ public class TransactionModel {
         this.transactionDate = transactionDate;
         this.createDate = createDate;
         this.accountId = accountId;
+        this.lastModifiedTime = System.currentTimeMillis();
     }
 
     // Legacy constructor for backward compatibility
@@ -74,6 +79,7 @@ public class TransactionModel {
         this.createDate = new Date();
         this.transId = 0;
         this.accountId = 1; // Default to first account
+        this.lastModifiedTime = System.currentTimeMillis();
     }
 
     // Legacy full constructor for backward compatibility
@@ -86,6 +92,7 @@ public class TransactionModel {
         this.transactionDate = transactionDate;
         this.createDate = createDate;
         this.accountId = 1; // Default to first account
+        this.lastModifiedTime = System.currentTimeMillis();
     }
 
 
@@ -151,5 +158,13 @@ public class TransactionModel {
 
     public void setAccountId(int accountId) {
         this.accountId = accountId;
+    }
+
+    public long getLastModifiedTime() {
+        return lastModifiedTime;
+    }
+
+    public void setLastModifiedTime(long lastModifiedTime) {
+        this.lastModifiedTime = lastModifiedTime;
     }
 }
