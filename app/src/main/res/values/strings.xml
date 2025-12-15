@@ -78,7 +78,7 @@
     <string name="all_ready_have_an_ccount">All ready have an ccount</string>
     <string name="full_name_pl">full name</string>
     <string name="email">email</string>
-    <string name="password">password</string>
+    <string name="password">Password</string>
     <string name="userName">David Watt</string>
     <string name="userEmail">david@gmail.com</string>
     <string name="currentdate">30/7/2025</string>
@@ -181,5 +181,16 @@
     <string name="english_default">English (Default)</string>
     <string name="hindi">हिन्दी</string>
     <string name="espa_ol">Español</string>
+    <string name="david_watt">David Watt</string>
+    <string name="david_gmail_com">david@gmail.com</string>
+    <string name="accounts">Accounts</string>
+    <string name="categories">Categories</string>
+    <string name="language">Language</string>
+    <string name="theme">Theme</string>
+    <string name="font_size">Font Size</string>
+    <string name="privacy_policy"><![CDATA[Privacy & Policy]]></string>
+    <string name="terms_of_use">Terms of use</string>
+    <string name="about_us">About Us</string>
+    <string name="feedback">Feedback</string>
 
 </resources>

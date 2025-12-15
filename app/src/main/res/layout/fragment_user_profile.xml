@@ -14,7 +14,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="221dp">
+        android:layout_height="wrap_content">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout"
@@ -61,7 +61,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins"
-                    android:text="David wall"
+                    android:text="@string/david_watt"
                     android:textColor="@color/white"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -72,7 +72,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins"
-                    android:text="david@gmail.com"
+                    android:text="@string/david_gmail_com"
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -83,13 +83,11 @@
 
     </RelativeLayout>
 
-
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:fillViewport="true"
         tools:ignore="ScrollViewCount"
-        android:translationY="-115dp"
         android:gravity="center">
 
         <LinearLayout
@@ -142,7 +140,7 @@
                                 android:id="@+id/ProfileText"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Profile"
+                                android:text="@string/profile"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -170,7 +168,7 @@
                                 android:id="@+id/accountIcon"
                                 android:layout_width="29dp"
                                 android:layout_height="29dp"
-                                android:src="@drawable/registration"
+                                android:src="@drawable/note"
                                 android:background="@drawable/user_circle"
                                 android:layout_gravity="center"/>
 
@@ -179,7 +177,7 @@
                                 android:id="@+id/accountText"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Accounts"
+                                android:text="@string/accounts"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -216,7 +214,7 @@
                                 android:layout_weight="1"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Category Settings"
+                                android:text="@string/categories"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -253,7 +251,7 @@
                                 android:id="@+id/currencyChange"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Currency Change"
+                                android:text="@string/currency"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -290,7 +288,7 @@
                                 android:id="@+id/notificationText"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Notification"
+                                android:text="@string/notification"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -327,7 +325,7 @@
                                 android:id="@+id/remindersText"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Reminders"
+                                android:text="@string/reminders"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -364,7 +362,7 @@
                                 android:id="@+id/budgetText"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Budget"
+                                android:text="@string/budget"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -400,7 +398,7 @@
                                 android:id="@+id/exportText"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Export Data"
+                                android:text="@string/export_data"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -437,7 +435,7 @@
                                 android:id="@+id/PasswordText"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Change Password"
+                                android:text="@string/password"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -474,7 +472,7 @@
                                 android:id="@+id/languageText"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Language"
+                                android:text="@string/language"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -511,7 +509,7 @@
                                 android:id="@+id/themeText"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Theme"
+                                android:text="@string/theme"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -548,7 +546,7 @@
                                 android:id="@+id/fontText"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Font Size"
+                                android:text="@string/font_size"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -585,7 +583,7 @@
                                 android:id="@+id/deleteText"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="Delete All Data"
+                                android:text="@string/delete_all_data"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/poppins"
                                 android:textColor="@color/black"
@@ -626,152 +624,152 @@
                     android:elevation="2dp"
                     android:orientation="vertical">
 
-                        <LinearLayout
-                            android:id="@+id/securityContainer"
+                    <LinearLayout
+                        android:id="@+id/securityContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true">
+
+                        <ImageView
+                            android:id="@+id/securityIcon"
+                            android:layout_width="29dp"
+                            android:layout_height="29dp"
+                            android:src="@drawable/shield"
+                            android:background="@drawable/user_circle"
+                            android:layout_gravity="center"/>
+
+                        <TextView
+                            android:id="@+id/securityText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/privacy_policy"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/poppins"
+                            android:textColor="@color/black"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"/>
+
+                        <ImageView
+                            android:layout_width="27dp"
+                            android:layout_height="27dp"
+                            android:src="@drawable/black_chevron_forward_24"
+                            android:layout_gravity="center"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/termsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true">
+
+                        <ImageView
+                            android:id="@+id/termsIcon"
+                            android:layout_width="29dp"
+                            android:layout_height="29dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/user_circle"
+                            android:src="@drawable/termsicon" />
+
+                        <TextView
+                            android:id="@+id/termsText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/terms_of_use"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/poppins"
+                            android:textColor="@color/black"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"/>
+
+                        <ImageView
+                            android:layout_width="27dp"
+                            android:layout_height="27dp"
+                            android:src="@drawable/black_chevron_forward_24"
+                            android:layout_gravity="center"/>
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/aboutUsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true">
+
+                        <ImageView
+                            android:id="@+id/aboutIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="29dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/user_circle"
+                            android:src="@drawable/question" />
+
+                        <TextView
+                            android:id="@+id/aboutText"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:padding="12dp"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:clickable="true">
+                            android:layout_height="wrap_content"
+                            android:text="@string/about_us"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/poppins"
+                            android:textColor="@color/black"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"/>
 
-                            <ImageView
-                                android:id="@+id/securityIcon"
-                                android:layout_width="29dp"
-                                android:layout_height="29dp"
-                                android:src="@drawable/shield"
-                                android:background="@drawable/user_circle"
-                                android:layout_gravity="center"/>
+                        <ImageView
+                            android:layout_width="27dp"
+                            android:layout_height="27dp"
+                            android:src="@drawable/black_chevron_forward_24"
+                            android:layout_gravity="center"/>
 
-                            <TextView
-                                android:id="@+id/securityText"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:text="Privacy &amp; Policy"
-                                android:textSize="16sp"
-                                android:fontFamily="@font/poppins"
-                                android:textColor="@color/black"
-                                android:layout_gravity="center"
-                                android:layout_weight="1"/>
+                    </LinearLayout>
 
-                            <ImageView
-                                android:layout_width="27dp"
-                                android:layout_height="27dp"
-                                android:src="@drawable/black_chevron_forward_24"
-                                android:layout_gravity="center"/>
-                        </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/feedBackContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true">
 
-                        <LinearLayout
-                            android:id="@+id/termsContainer"
+                        <ImageView
+                            android:id="@+id/feedBackIcon"
+                            android:layout_width="29dp"
+                            android:layout_height="29dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/user_circle"
+                            android:src="@drawable/comment" />
+
+                        <TextView
+                            android:id="@+id/feedBackText"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:padding="12dp"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:clickable="true">
+                            android:layout_height="wrap_content"
+                            android:text="@string/feedback"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/poppins"
+                            android:textColor="@color/black"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"/>
 
-                            <ImageView
-                                android:id="@+id/termsIcon"
-                                android:layout_width="29dp"
-                                android:layout_height="29dp"
-                                android:layout_gravity="center"
-                                android:background="@drawable/user_circle"
-                                android:src="@drawable/termsicon" />
-
-                            <TextView
-                                android:id="@+id/termsText"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:text="Terms of Use"
-                                android:textSize="16sp"
-                                android:fontFamily="@font/poppins"
-                                android:textColor="@color/black"
-                                android:layout_gravity="center"
-                                android:layout_weight="1"/>
-
-                            <ImageView
-                                android:layout_width="27dp"
-                                android:layout_height="27dp"
-                                android:src="@drawable/black_chevron_forward_24"
-                                android:layout_gravity="center"/>
-
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/aboutUsContainer"
-                            android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:padding="12dp"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:clickable="true">
-
-                            <ImageView
-                                android:id="@+id/aboutIcon"
-                                android:layout_width="24dp"
-                                android:layout_height="29dp"
-                                android:layout_gravity="center"
-                                android:background="@drawable/user_circle"
-                                android:src="@drawable/question" />
-
-                            <TextView
-                                android:id="@+id/aboutText"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="About Us"
-                                android:textSize="16sp"
-                                android:fontFamily="@font/poppins"
-                                android:textColor="@color/black"
-                                android:layout_gravity="center"
-                                android:layout_weight="1"/>
-
-                            <ImageView
-                                android:layout_width="27dp"
-                                android:layout_height="27dp"
-                                android:src="@drawable/black_chevron_forward_24"
-                                android:layout_gravity="center"/>
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/feedBackContainer"
-                            android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:padding="12dp"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:clickable="true">
-
-                            <ImageView
-                                android:id="@+id/feedBackIcon"
-                                android:layout_width="29dp"
-                                android:layout_height="29dp"
-                                android:layout_gravity="center"
-                                android:background="@drawable/user_circle"
-                                android:src="@drawable/comment" />
-
-                            <TextView
-                                android:id="@+id/feedBackText"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="FeedBack"
-                                android:textSize="16sp"
-                                android:fontFamily="@font/poppins"
-                                android:textColor="@color/black"
-                                android:layout_gravity="center"
-                                android:layout_weight="1"/>
-
-                            <ImageView
-                                android:layout_width="27dp"
-                                android:layout_height="27dp"
-                                android:src="@drawable/black_chevron_forward_24"
-                                android:layout_gravity="center"/>
-                        </LinearLayout>
+                        <ImageView
+                            android:layout_width="27dp"
+                            android:layout_height="27dp"
+                            android:src="@drawable/black_chevron_forward_24"
+                            android:layout_gravity="center"/>
+                    </LinearLayout>
 
 
                 </LinearLayout>
