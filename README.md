@@ -65,6 +65,9 @@ Designed to help users efficiently manage money, track spending patterns, and st
 
 ---
 
+## 📥 APK Download
+🔗 [Download Latest APK](https://github.com/das-robi/Money-Tracker-/releases/)
+
 ## 📸 Screenshots  
 
 <div style="display: flex; flex-wrap: wrap; gap: 20px;">
